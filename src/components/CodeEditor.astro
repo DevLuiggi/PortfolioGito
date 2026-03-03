@@ -1,0 +1,211 @@
+---
+interface Props {
+  fileName?: string;
+}
+
+const { fileName = 'portfolio.tsx' } = Astro.props;
+
+const lines = [
+  { num: 1, tokens: [{ text: '// Welcome to my workspace', cls: 'text-syntax-comment' }] },
+  { num: 2, tokens: [
+    { text: 'import', cls: 'text-syntax-keyword' },
+    { text: ' { ', cls: 'text-foreground' },
+    { text: 'Developer', cls: 'text-syntax-type' },
+    { text: ' } ', cls: 'text-foreground' },
+    { text: 'from', cls: 'text-syntax-keyword' },
+    { text: " './universe'", cls: 'text-syntax-string' },
+    { text: ';', cls: 'text-foreground' },
+  ]},
+  { num: 3, tokens: [] },
+  { num: 4, tokens: [
+    { text: 'const', cls: 'text-syntax-keyword' },
+    { text: ' Portfolio', cls: 'text-syntax-function' },
+    { text: ' = () ', cls: 'text-foreground' },
+    { text: '=>', cls: 'text-syntax-operator' },
+    { text: ' {', cls: 'text-foreground' },
+  ]},
+  { num: 5, tokens: [
+    { text: '  ', cls: '' },
+    { text: 'return', cls: 'text-syntax-keyword' },
+    { text: ' (', cls: 'text-foreground' },
+  ]},
+  { num: 6, tokens: [
+    { text: '    <', cls: 'text-foreground' },
+    { text: 'Developer', cls: 'text-syntax-type' },
+  ]},
+  { num: 7, tokens: [
+    { text: '      name', cls: 'text-syntax-type' },
+    { text: '=', cls: 'text-syntax-operator' },
+    { text: '"Luiggi Paredes"', cls: 'text-syntax-string' },
+  ]},
+  { num: 8, tokens: [
+    { text: '      role', cls: 'text-syntax-type' },
+    { text: '=', cls: 'text-syntax-operator' },
+    { text: '"Backend & FullStack"', cls: 'text-syntax-string' },
+  ]},
+  { num: 9, tokens: [
+    { text: '      passion', cls: 'text-syntax-type' },
+    { text: '=', cls: 'text-syntax-operator' },
+    { text: '"Microservices & Cloud"', cls: 'text-syntax-string' },
+  ]},
+  { num: 10, tokens: [
+    { text: '    />', cls: 'text-foreground' },
+  ]},
+  { num: 11, tokens: [
+    { text: '  );', cls: 'text-foreground' },
+  ]},
+  { num: 12, tokens: [
+    { text: '};', cls: 'text-foreground' },
+  ]},
+];
+---
+
+<div class="bg-dark-100 border border-dark-300 rounded-xl overflow-hidden card-glow shadow-2xl">
+  <!-- Title bar -->
+  <div class="flex items-center px-4 py-3 border-b border-dark-300 bg-dark-200">
+    <div class="flex gap-2">
+      <span class="w-3 h-3 rounded-full bg-red-500"></span>
+      <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+      <span class="w-3 h-3 rounded-full bg-green-500"></span>
+    </div>
+    <div class="flex-1 flex items-center justify-center gap-1.5">
+      <span class="text-orange-400 text-xs">●</span>
+      <span class="text-muted text-sm font-mono">{fileName}</span>
+    </div>
+    <div class="w-14"></div>
+  </div>
+
+  <!-- Code body -->
+  <div id="code-body" class="p-5 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto">
+    {lines.map((line, lineIdx) => (
+      <div class="code-line flex" data-line-idx={lineIdx} style="visibility: hidden;">
+        <span class="text-dark-400 select-none w-8 text-right mr-4 shrink-0">{line.num}</span>
+        <span class="flex-1 whitespace-pre code-content">
+          {line.tokens.length === 0 ? (
+            <br />
+          ) : (
+            line.tokens.map((token) => (
+              <span class={token.cls}>{token.text}</span>
+            ))
+          )}<span class="typing-cursor text-orange-400 animate-pulse" style="display: none;">|</span>
+        </span>
+      </div>
+    ))}
+  </div>
+
+  <!-- Action buttons -->
+  <div id="code-actions" class="flex gap-3 px-5 pb-5" style="opacity: 0;">
+    <a
+      href="#about"
+      class="flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400 text-sm font-mono hover:bg-blue-500/20 transition-all"
+    >
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <span data-i18n="hero.runProfile">Run Profile</span>
+    </a>
+    <a
+      href="#projects"
+      class="flex items-center gap-2 px-5 py-2.5 text-muted text-sm font-mono hover:text-foreground transition-all"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" /></svg>
+      <span data-i18n="hero.viewProjects">View Projects</span>
+    </a>
+  </div>
+</div>
+
+<script>
+  function initTypewriter() {
+    var lines = document.querySelectorAll('.code-line');
+    if (!lines.length) return;
+
+    var CHAR_DELAY = 25;
+    var LINE_DELAY = 80;
+
+    // Collect full HTML and chars per line before clearing
+    var lineData = [];
+    for (var li = 0; li < lines.length; li++) {
+      var content = lines[li].querySelector('.code-content');
+      var cursor = lines[li].querySelector('.typing-cursor');
+      if (!content) continue;
+
+      var fullHTML = content.innerHTML;
+      var spans = content.querySelectorAll('span:not(.typing-cursor)');
+      var chars = [];
+      for (var si = 0; si < spans.length; si++) {
+        var text = spans[si].textContent || '';
+        var cls = spans[si].className;
+        for (var ci = 0; ci < text.length; ci++) {
+          chars.push({ char: text[ci], cls: cls });
+        }
+      }
+      var isEmpty = !content.textContent || content.textContent.replace('|', '').trim() === '';
+      lineData.push({ content: content, cursor: cursor, fullHTML: fullHTML, chars: chars, isEmpty: isEmpty });
+    }
+
+    function typeLine(lineIdx) {
+      if (lineIdx >= lineData.length) {
+        var actions = document.getElementById('code-actions');
+        if (actions) { actions.style.opacity = '1'; actions.style.transition = 'opacity 0.4s'; }
+        return;
+      }
+
+      var ld = lineData[lineIdx];
+      var line = lines[lineIdx];
+
+      // Show line
+      (line as HTMLElement).style.visibility = 'visible';
+
+      // Hide previous cursor
+      if (lineIdx > 0 && lineData[lineIdx - 1].cursor) {
+        (lineData[lineIdx - 1].cursor as HTMLElement).style.display = 'none';
+      }
+
+      // Empty lines — just show and move on
+      if (ld.isEmpty) {
+        ld.content.innerHTML = ld.fullHTML;
+        setTimeout(function() { typeLine(lineIdx + 1); }, LINE_DELAY);
+        return;
+      }
+
+      // Clear content, add cursor
+      ld.content.innerHTML = '';
+      if (ld.cursor) {
+        ld.content.appendChild(ld.cursor);
+        (ld.cursor as HTMLElement).style.display = 'inline';
+      }
+
+      var charIdx = 0;
+
+      function typeChar() {
+        if (charIdx >= ld.chars.length) {
+          // Line done — restore full HTML (without cursor)
+          ld.content.innerHTML = ld.fullHTML;
+          setTimeout(function() { typeLine(lineIdx + 1); }, LINE_DELAY);
+          return;
+        }
+
+        var c = ld.chars[charIdx];
+        // Insert char span before cursor
+        var prevSibling = ld.cursor ? ld.cursor.previousElementSibling : ld.content.lastElementChild;
+        if (!prevSibling || prevSibling.className !== c.cls) {
+          var newSpan = document.createElement('span');
+          newSpan.className = c.cls;
+          if (ld.cursor) {
+            ld.content.insertBefore(newSpan, ld.cursor);
+          } else {
+            ld.content.appendChild(newSpan);
+          }
+          prevSibling = newSpan;
+        }
+        prevSibling.textContent += c.char;
+        charIdx++;
+        setTimeout(typeChar, CHAR_DELAY);
+      }
+
+      typeChar();
+    }
+
+    setTimeout(function() { typeLine(0); }, 400);
+  }
+
+  initTypewriter();
+</script>

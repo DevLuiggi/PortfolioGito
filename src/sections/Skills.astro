@@ -1,0 +1,332 @@
+---
+import SectionHeading from '../components/SectionHeading.astro';
+import { skills } from '../data/skills';
+---
+
+<section id="skills" class="min-h-screen py-20 sm:py-24 px-4 sm:px-6 lg:px-12">
+  <div class="max-w-6xl mx-auto">
+    <SectionHeading text="# Skills.json" i18nKey="skills.title" />
+
+    <div class="scroll-reveal">
+      <div class="relative max-w-4xl mx-auto">
+        <div
+          id="skills-sphere"
+          class="relative w-full aspect-square max-w-[320px] sm:max-w-[420px] md:max-w-[500px] mx-auto cursor-grab active:cursor-grabbing select-none"
+          style="overflow: visible;"
+        >
+          <canvas id="sphere-wireframe" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+          {skills.map((skill) => (
+            <div class="skill-node absolute" data-skill-name={skill.name}>
+              {skill.svgUrl ? (
+                <img src={skill.svgUrl} alt={skill.name} class="skill-svg" />
+              ) : (
+                <i class={`${skill.deviconClass}${skill.deviconClass.includes('colored') ? '' : ' text-foreground'}`} />
+              )}
+              <span class="skill-label block text-center font-mono">{skill.name}</span>
+            </div>
+          ))}
+        </div>
+        <p class="text-center text-muted text-xs sm:text-sm font-mono mt-6 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5a17.92 17.92 0 0 1-8.716-2.247m0 0A8.966 8.966 0 0 1 3 12c0-1.97.633-3.792 1.708-5.274" />
+          </svg>
+          <span data-i18n="skills.dragHint">Drag to explore skills universe</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .skill-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+    will-change: transform, opacity;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+  }
+
+  .skill-label {
+    color: var(--color-muted);
+    margin-top: 0.25rem;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  const sphere = document.getElementById('skills-sphere');
+  if (!sphere) throw new Error('Skills sphere not found');
+
+  const canvas = document.getElementById('sphere-wireframe') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+
+  const nodes = Array.from(sphere.querySelectorAll('.skill-node'));
+  const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
+  const FOCAL_LENGTH = 600;
+  const AUTO_ROTATE_SPEED = 0.003;
+
+  let width = 0;
+  let height = 0;
+  let RADIUS = 0;
+  let dpr = window.devicePixelRatio || 1;
+
+  function measure() {
+    const rect = sphere.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    RADIUS = Math.min(width, height) * 0.42;
+    dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  measure();
+  window.addEventListener('resize', measure);
+
+  var t = (1 + Math.sqrt(5)) / 2;
+
+  var icoVerts: number[][] = [
+    [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
+    [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
+    [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1],
+  ];
+  for (var vi = 0; vi < icoVerts.length; vi++) {
+    var vv = icoVerts[vi];
+    var len = Math.sqrt(vv[0]*vv[0] + vv[1]*vv[1] + vv[2]*vv[2]);
+    vv[0] /= len; vv[1] /= len; vv[2] /= len;
+  }
+
+  var icoFaces: number[][] = [
+    [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+    [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+    [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+    [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1],
+  ];
+
+  function subdivide(verts: number[][], faces: number[][]): { verts: number[][], faces: number[][] } {
+    var midCache: Record<string, number> = {};
+    var newFaces: number[][] = [];
+
+    function getMid(a: number, b: number): number {
+      var key = Math.min(a,b) + '_' + Math.max(a,b);
+      if (midCache[key] !== undefined) return midCache[key];
+      var va = verts[a], vb = verts[b];
+      var mx = (va[0]+vb[0])/2, my = (va[1]+vb[1])/2, mz = (va[2]+vb[2])/2;
+      var ml = Math.sqrt(mx*mx+my*my+mz*mz);
+      mx/=ml; my/=ml; mz/=ml;
+      verts.push([mx,my,mz]);
+      midCache[key] = verts.length - 1;
+      return midCache[key];
+    }
+
+    for (var fi = 0; fi < faces.length; fi++) {
+      var f = faces[fi];
+      var a = f[0], b = f[1], c = f[2];
+      var ab = getMid(a,b), bc = getMid(b,c), ca = getMid(c,a);
+      newFaces.push([a,ab,ca],[ab,b,bc],[ca,bc,c],[ab,bc,ca]);
+    }
+    return { verts: verts, faces: newFaces };
+  }
+
+  var geo = subdivide(icoVerts, icoFaces);
+  geo = subdivide(geo.verts, geo.faces);
+  var geoVerts = geo.verts;
+  var geoFaces = geo.faces;
+
+  var edgeSet = new Set<string>();
+  var edges: number[][] = [];
+  for (var fi = 0; fi < geoFaces.length; fi++) {
+    var f = geoFaces[fi];
+    var pairs = [[f[0],f[1]],[f[1],f[2]],[f[2],f[0]]];
+    for (var pi = 0; pi < pairs.length; pi++) {
+      var ea = Math.min(pairs[pi][0], pairs[pi][1]);
+      var eb = Math.max(pairs[pi][0], pairs[pi][1]);
+      var ek = ea + '_' + eb;
+      if (!edgeSet.has(ek)) {
+        edgeSet.add(ek);
+        edges.push([ea, eb]);
+      }
+    }
+  }
+
+  const nSkills = nodes.length;
+  const skillPoints = nodes.map(function(_, i) {
+    var theta = Math.acos(1 - 2 * (i + 0.5) / nSkills);
+    var phi = Math.PI * 2 * i / GOLDEN_RATIO;
+    return {
+      x: Math.sin(theta) * Math.cos(phi),
+      y: Math.sin(theta) * Math.sin(phi),
+      z: Math.cos(theta),
+    };
+  });
+
+  var rotX = 0, rotY = 0;
+  var velX = 0, velY = 0;
+  var isDragging = false;
+  var lastX = 0, lastY = 0;
+  var isVisible = true;
+
+  function rotatePoint(px: number, py: number, pz: number) {
+    var cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    var rx = px * cosY - pz * sinY;
+    var rz = px * sinY + pz * cosY;
+    var cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    var ry = py * cosX - rz * sinX;
+    var rz2 = py * sinX + rz * cosX;
+    return { x: rx, y: ry, z: rz2 };
+  }
+
+  function project(rx: number, ry: number, rz: number) {
+    var scale = FOCAL_LENGTH / (FOCAL_LENGTH + rz * RADIUS);
+    return {
+      sx: width / 2 + rx * RADIUS * scale,
+      sy: height / 2 + ry * RADIUS * scale,
+      scale: scale,
+    };
+  }
+
+  function drawWireframe() {
+    ctx.clearRect(0, 0, width, height);
+
+    for (var ei = 0; ei < edges.length; ei++) {
+      var va = geoVerts[edges[ei][0]];
+      var vb = geoVerts[edges[ei][1]];
+      var ra = rotatePoint(va[0], va[1], va[2]);
+      var rb = rotatePoint(vb[0], vb[1], vb[2]);
+      var pa = project(ra.x, ra.y, ra.z);
+      var pb = project(rb.x, rb.y, rb.z);
+      var avgZ = (ra.z + rb.z) / 2;
+      var depthAlpha = 0.03 + 0.12 * ((1 - avgZ) / 2);
+
+      ctx.beginPath();
+      ctx.moveTo(pa.sx, pa.sy);
+      ctx.lineTo(pb.sx, pb.sy);
+      ctx.strokeStyle = 'rgba(255, 107, 0, ' + depthAlpha + ')';
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+
+    var cx = width / 2, cy = height / 2;
+    var grad = ctx.createRadialGradient(cx, cy, RADIUS * 0.85, cx, cy, RADIUS * 1.3);
+    grad.addColorStop(0, 'rgba(255, 107, 0, 0)');
+    grad.addColorStop(0.5, 'rgba(255, 107, 0, 0.04)');
+    grad.addColorStop(1, 'rgba(255, 107, 0, 0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, RADIUS * 1.3, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // Responsive icon sizing
+  var isMobile = window.innerWidth < 640;
+
+  function update() {
+    measure();
+    drawWireframe();
+
+    for (var i = 0; i < skillPoints.length; i++) {
+      var p = skillPoints[i];
+      var node = nodes[i];
+      var r = rotatePoint(p.x, p.y, p.z);
+      var proj = project(r.x, r.y, r.z);
+      var alpha = Math.max(0.15, Math.min(1, (proj.scale - 0.7) * 3));
+      var baseSize = isMobile ? 28 : 42;
+      var minSize = isMobile ? 16 : 22;
+      var iconSize = Math.max(minSize, baseSize * proj.scale);
+
+      var el = node as HTMLElement;
+      el.style.transform = 'translate(-50%, -50%) translate(' + proj.sx + 'px, ' + proj.sy + 'px)';
+      el.style.opacity = String(alpha);
+      el.style.zIndex = String(Math.round(proj.scale * 100));
+      el.style.fontSize = iconSize + 'px';
+
+      var img = el.querySelector('.skill-svg') as HTMLElement | null;
+      if (img) {
+        img.style.width = iconSize + 'px';
+        img.style.height = iconSize + 'px';
+      }
+
+      var label = el.querySelector('.skill-label') as HTMLElement | null;
+      if (label) {
+        var labelSize = isMobile ? Math.max(7, 8 * proj.scale) : Math.max(8, 10 * proj.scale);
+        label.style.fontSize = labelSize + 'px';
+      }
+    }
+  }
+
+  function animate() {
+    if (!isVisible) { requestAnimationFrame(animate); return; }
+
+    if (!isDragging) {
+      rotY += AUTO_ROTATE_SPEED + velY;
+      rotX += velX;
+      velX *= 0.95;
+      velY *= 0.95;
+      if (Math.abs(velX) < 0.0001) velX = 0;
+      if (Math.abs(velY) < 0.0001) velY = 0;
+    }
+
+    update();
+    requestAnimationFrame(animate);
+  }
+
+  sphere.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    velX = velY = 0;
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (isDragging) {
+      var dx = e.clientX - lastX;
+      var dy = e.clientY - lastY;
+      rotY += dx * 0.005;
+      rotX += dy * 0.005;
+      velY = dx * 0.002;
+      velX = dy * 0.002;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    }
+  });
+
+  window.addEventListener('mouseup', function() { isDragging = false; });
+
+  sphere.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    isDragging = true;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    velX = velY = 0;
+  }, { passive: false });
+
+  sphere.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (!isDragging) return;
+    var dx = e.touches[0].clientX - lastX;
+    var dy = e.touches[0].clientY - lastY;
+    rotY += dx * 0.005;
+    rotX += dy * 0.005;
+    velY = dx * 0.002;
+    velX = dy * 0.002;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+  }, { passive: false });
+
+  sphere.addEventListener('touchend', function() { isDragging = false; });
+
+  var visObserver = new IntersectionObserver(function(entries) {
+    isVisible = entries[0].isIntersecting;
+  }, { threshold: 0.1 });
+  visObserver.observe(sphere);
+
+  window.addEventListener('resize', function() {
+    isMobile = window.innerWidth < 640;
+  });
+
+  animate();
+</script>

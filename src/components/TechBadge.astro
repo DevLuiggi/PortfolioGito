@@ -1,0 +1,49 @@
+---
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+
+// Icons with dark brand colors omit 'colored' and inherit text-blue-400 from parent
+const deviconMap: Record<string, string> = {
+  'java': 'devicon-java-plain colored',
+  'typescript': 'devicon-typescript-plain colored',
+  'javascript': 'devicon-javascript-plain colored',
+  'python': 'devicon-python-plain colored',
+  'nestjs': 'devicon-nestjs-original colored',
+  'spring boot': 'devicon-spring-original colored',
+  'spring': 'devicon-spring-original colored',
+  'node.js': 'devicon-nodejs-plain colored',
+  'angular': 'devicon-angular-plain colored',
+  'react': 'devicon-react-original colored',
+  'next.js': 'devicon-nextjs-plain',
+  'postgresql': 'devicon-postgresql-plain colored',
+  'mysql': 'devicon-mysql-plain colored',
+  'mongodb': 'devicon-mongodb-plain colored',
+  'prisma': 'devicon-prisma-original',
+  'docker': 'devicon-docker-plain colored',
+  'aws': 'devicon-amazonwebservices-plain-wordmark colored',
+  'digitalocean': 'devicon-digitalocean-original colored',
+  'linux': '',
+  'kafka': 'devicon-apachekafka-original',
+  'git': 'devicon-git-plain colored',
+  'postman': 'devicon-postman-plain colored',
+  'swagger': 'devicon-swagger-plain colored',
+  'nginx': 'devicon-nginx-original colored',
+  'cloudflare': 'devicon-cloudflare-plain colored',
+  'microservices': '',
+};
+
+const deviconClass = deviconMap[name.toLowerCase()] ?? '';
+
+const svgMap: Record<string, string> = {
+  'linux': 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg',
+};
+const svgUrl = svgMap[name.toLowerCase()];
+---
+
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono border border-blue-500/30 text-blue-400 bg-blue-500/10 rounded-md whitespace-nowrap">
+  {svgUrl ? <img src={svgUrl} alt={name} class="w-3.5 h-3.5" /> : deviconClass && <i class={`${deviconClass} text-sm`} />}
+  {name}
+</span>

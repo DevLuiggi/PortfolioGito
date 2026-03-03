@@ -1,0 +1,21 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="relative z-10 border-t border-dark-300 py-6 sm:py-8 px-4 sm:px-6">
+  <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-muted font-mono">
+    <div class="flex items-center gap-2">
+      <span class="text-foreground">&lt;/&gt;</span>
+      <span>Luiggi Paredes</span>
+      <span class="text-dark-400">|</span>
+      <span>CodeGito</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <span data-i18n="footer.builtWith">Built with Astro, TypeScript & Tailwind</span>
+    </div>
+    <div>
+      <span>&copy; {year}</span>
+      <span data-i18n="footer.rights" class="ml-1">All rights reserved.</span>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,17 @@
+---
+interface Props {
+  text: string;
+  i18nKey?: string;
+}
+
+const { text, i18nKey } = Astro.props;
+const prefix = text.match(/^[#$]/)?.[0] || '';
+const rest = prefix ? text.slice(1).trimStart() : text;
+---
+
+<div class="flex items-center gap-3 mb-12">
+  <h2 class="text-2xl lg:text-3xl font-mono font-bold text-foreground whitespace-nowrap">
+    {prefix && <span class="text-orange-500">{prefix} </span>}<span data-i18n={i18nKey}>{rest}</span>
+  </h2>
+  <div class="flex-1 h-px bg-dark-300 ml-4"></div>
+</div>

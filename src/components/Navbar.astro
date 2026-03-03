@@ -1,0 +1,193 @@
+---
+import { personal } from '../data/personal';
+
+const navItems = [
+  { id: 'hero', file: 'main.ts', icon: 'code', label: 'Home' },
+  { id: 'about', file: 'about.md', icon: 'user', label: 'About' },
+  { id: 'skills', file: 'skills.json', icon: 'braces', label: 'Skills' },
+  { id: 'experience', file: 'experience.git', icon: 'git-branch', label: 'Experience' },
+  { id: 'projects', file: 'projects/', icon: 'folder', label: 'Projects' },
+  { id: 'contact', file: 'contact.exe', icon: 'terminal', label: 'Contact' },
+];
+---
+
+{/* ===== SIDEBAR REMOVED — Navigation is mobile-only (hamburger menu below) ===== */}
+
+{/* ===== MOBILE: TOP BAR + HAMBURGER MENU ===== */}
+<div class="fixed top-0 left-0 right-0 h-14 bg-dark-100/95 backdrop-blur-sm border-b border-dark-300 z-40 flex md:hidden items-center justify-between px-4">
+  <a href="#hero" class="flex items-center gap-2">
+    <div class="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+      <span class="text-blue-400 font-mono text-xs font-bold">&lt;/&gt;</span>
+    </div>
+    <span class="text-foreground font-semibold text-sm">CodeGito</span>
+  </a>
+  <button
+    id="mobile-menu-toggle"
+    class="w-10 h-10 flex items-center justify-center rounded-lg text-muted hover:text-foreground hover:bg-dark-50 transition-all"
+    aria-label="Toggle menu"
+    aria-expanded="false"
+  >
+    <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
+    <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>
+
+{/* Mobile Menu Overlay */}
+<div id="mobile-menu" class="fixed inset-0 z-50 pointer-events-none md:hidden" aria-hidden="true">
+  <div id="mobile-menu-backdrop" class="absolute inset-0 bg-black/60 opacity-0 transition-opacity duration-300"></div>
+  <div id="mobile-menu-panel" class="absolute top-14 right-0 w-72 h-[calc(100dvh-3.5rem)] bg-dark-100/98 backdrop-blur-md border-l border-dark-300 transform translate-x-full transition-transform duration-300 ease-out overflow-y-auto">
+    <div class="py-4 px-4 space-y-1">
+      <p class="text-muted text-[10px] font-mono uppercase tracking-wider px-3 mb-3">Navigate</p>
+      {navItems.map((item) => (
+        <a
+          href={`#${item.id}`}
+          data-nav-link={item.id}
+          class="mobile-nav-link nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-mono text-muted hover:text-foreground hover:bg-dark-50 transition-all duration-200"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            {item.icon === 'code' && <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />}
+            {item.icon === 'user' && <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />}
+            {item.icon === 'braces' && <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25" />}
+            {item.icon === 'git-branch' && <><path stroke-linecap="round" stroke-linejoin="round" d="M6 3v12" /><circle cx="18" cy="6" r="3" stroke-linecap="round" stroke-linejoin="round" /><circle cx="6" cy="18" r="3" stroke-linecap="round" stroke-linejoin="round" /><path stroke-linecap="round" stroke-linejoin="round" d="M18 9a9 9 0 0 1-9 9" /></>}
+            {item.icon === 'folder' && <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />}
+            {item.icon === 'terminal' && <path stroke-linecap="round" stroke-linejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" />}
+          </svg>
+          <span>{item.file}</span>
+        </a>
+      ))}
+    </div>
+
+    <div class="border-t border-dark-300 mx-4"></div>
+
+    {/* Social links */}
+    <div class="px-4 py-4 space-y-2">
+      <p class="text-muted text-[10px] font-mono uppercase tracking-wider px-3 mb-2">Connect</p>
+      <a
+        href={personal.socials.github}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-mono text-muted hover:text-foreground hover:bg-dark-50 transition-all"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+        <span>GitHub</span>
+      </a>
+      <a
+        href={personal.socials.linkedin}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-mono text-muted hover:text-foreground hover:bg-dark-50 transition-all"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+        <span>LinkedIn</span>
+      </a>
+    </div>
+
+    <div class="border-t border-dark-300 mx-4"></div>
+
+    {/* Language toggle + Resume */}
+    <div class="px-4 py-4 space-y-3">
+      <button
+        id="lang-toggle-mobile"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted hover:text-foreground hover:bg-dark-50 transition-all w-full"
+        aria-label="Toggle language"
+      >
+        <img data-lang-flag src="/icons/flag-us.svg" alt="Language" class="w-5 h-4 rounded-sm object-cover" />
+        <span data-lang-label class="text-xs font-mono">EN</span>
+      </button>
+
+      <a
+        href={personal.resumeUrl.en}
+        data-resume-en={personal.resumeUrl.en}
+        data-resume-es={personal.resumeUrl.es}
+        data-resume-link
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-3 px-3 py-2.5 bg-orange-500/10 border border-orange-500/40 rounded-lg text-orange-400 text-sm font-mono hover:bg-orange-500/20 hover:border-orange-500/60 transition-all"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+        <span data-i18n="resume">Resume</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .nav-link.nav-active {
+    background-color: rgba(0, 102, 255, 0.1);
+    color: var(--color-blue-400);
+    border-right: 2px solid var(--color-blue-400);
+  }
+
+  .mobile-nav-link.nav-active {
+    border-right: none;
+    border-left: 2px solid var(--color-blue-400);
+  }
+</style>
+
+<script>
+  const menuToggle = document.getElementById('mobile-menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const backdrop = document.getElementById('mobile-menu-backdrop');
+  const panel = document.getElementById('mobile-menu-panel');
+  const hamburgerIcon = document.getElementById('hamburger-icon');
+  const closeIcon = document.getElementById('close-icon');
+
+  let isMenuOpen = false;
+
+  function openMenu() {
+    isMenuOpen = true;
+    menu?.setAttribute('aria-hidden', 'false');
+    menuToggle?.setAttribute('aria-expanded', 'true');
+    menu?.classList.remove('pointer-events-none');
+    backdrop?.classList.remove('opacity-0');
+    backdrop?.classList.add('opacity-100');
+    panel?.classList.remove('translate-x-full');
+    panel?.classList.add('translate-x-0');
+    hamburgerIcon?.classList.add('hidden');
+    closeIcon?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    isMenuOpen = false;
+    menu?.setAttribute('aria-hidden', 'true');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+    backdrop?.classList.remove('opacity-100');
+    backdrop?.classList.add('opacity-0');
+    panel?.classList.remove('translate-x-0');
+    panel?.classList.add('translate-x-full');
+    hamburgerIcon?.classList.remove('hidden');
+    closeIcon?.classList.add('hidden');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      if (!isMenuOpen) menu?.classList.add('pointer-events-none');
+    }, 300);
+  }
+
+  menuToggle?.addEventListener('click', () => {
+    if (isMenuOpen) closeMenu();
+    else openMenu();
+  });
+
+  backdrop?.addEventListener('click', closeMenu);
+
+  panel?.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', () => {
+      if (isMenuOpen) closeMenu();
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isMenuOpen) closeMenu();
+  });
+</script>

@@ -1,0 +1,219 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+import SocialBar from '../components/SocialBar.astro';
+import RightSidebar from '../components/RightSidebar.astro';
+import GridBackground from '../components/GridBackground.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Luiggi Paredes | Backend & FullStack Developer',
+  description = 'Backend developer specializing in microservices, cloud architecture, NestJS, Spring Boot, and SUNAT electronic billing. Based in Lima, Peru.',
+} = Astro.props;
+
+const ogImage = new URL('/og-image.png', Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="backend developer, fullstack, microservices, NestJS, Spring Boot, cloud, Lima, Peru, SUNAT, CodeGito" />
+    <meta name="author" content="Luiggi Gianfranco Paredes Zapata" />
+
+    <!-- OpenGraph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_PE" />
+    <meta property="og:url" content={Astro.site?.href} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Devicon CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/codegitologo.jpg" />
+    <link rel="apple-touch-icon" href="/codegitologo.jpg" />
+    <title>{title}</title>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Luiggi Gianfranco Paredes Zapata",
+      "jobTitle": "Backend & FullStack Developer",
+      "url": "https://codegito.lat",
+      "email": "luiggipdeveloper@gmail.com",
+      "address": { "@type": "PostalAddress", "addressLocality": "Lima", "addressCountry": "PE" },
+      "sameAs": [
+        "https://github.com/DevLuiggi",
+        "https://www.linkedin.com/in/luiggipdeveloper/"
+      ]
+    })} />
+  </head>
+  <body class="min-h-screen bg-dark-bg text-foreground font-sans antialiased">
+    <GridBackground />
+
+    <Navbar />
+
+    <!-- Language Toggle (top-right, hidden on mobile where it's in hamburger) -->
+    <button
+      id="lang-toggle"
+      class="fixed top-6 right-6 z-50 hidden md:flex items-center gap-2 px-3 py-2 bg-dark-100/90 backdrop-blur-sm border border-dark-300 rounded-lg text-muted hover:text-foreground hover:border-dark-400 transition-all"
+      aria-label="Toggle language"
+    >
+      <img data-lang-flag src="/icons/flag-us.svg" alt="Language" class="w-5 h-4 rounded-sm object-cover" />
+      <span data-lang-label class="text-xs font-mono">EN</span>
+    </button>
+
+    <SocialBar />
+    <RightSidebar />
+
+    <main class="relative z-10 lg:mr-20">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      import { langStore } from '../i18n/languageStore';
+
+      // Initialize language store
+      langStore.init();
+
+      // Language toggle click handler (all toggle buttons)
+      document.querySelectorAll('[id^="lang-toggle"]').forEach((btn) => {
+        btn.addEventListener('click', () => langStore.toggle());
+      });
+
+      // Language switcher: swap all translatable elements
+      langStore.subscribe(() => {
+        const lang = langStore.current;
+
+        // Swap [data-i18n] elements (from translations.ts)
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = el.getAttribute('data-i18n');
+          if (key) {
+            const value = langStore.getTranslation(key);
+            if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+              el.placeholder = value;
+            } else {
+              el.innerHTML = value;
+            }
+          }
+        });
+
+        // Swap [data-en][data-es] elements (from data files)
+        document.querySelectorAll('[data-en][data-es]').forEach((el) => {
+          const value = el.getAttribute(`data-${lang}`);
+          if (value) {
+            if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+              el.placeholder = value;
+            } else {
+              el.innerHTML = value;
+            }
+          }
+        });
+
+        // Update lang attribute
+        document.documentElement.lang = lang;
+
+        // Update all flag images and labels
+        document.querySelectorAll('[data-lang-flag]').forEach((flag: Element) => {
+          (flag as HTMLImageElement).src = lang === 'en' ? '/icons/flag-us.svg' : '/icons/flag-pe.svg';
+        });
+        document.querySelectorAll('[data-lang-label]').forEach((label) => {
+          label.textContent = lang.toUpperCase();
+        });
+
+        // Update resume links based on language
+        document.querySelectorAll('[data-resume-link]').forEach((link) => {
+          const url = link.getAttribute(`data-resume-${lang}`);
+          if (url) (link as HTMLAnchorElement).href = url;
+        });
+      });
+
+      // Scroll reveal with IntersectionObserver
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('animate-in');
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      );
+
+      document.querySelectorAll('.scroll-reveal').forEach((el) => observer.observe(el));
+
+      // Cursor glow effect (desktop only)
+      const glow = document.getElementById('cursor-glow');
+      if (glow && window.matchMedia('(min-width: 1024px)').matches) {
+        document.addEventListener('mousemove', (e) => {
+          requestAnimationFrame(() => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+          });
+        });
+      }
+
+      // Active section tracking for right sidebar dots + mobile nav
+      const sections = document.querySelectorAll('section[id]');
+
+      const navObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              // Update right sidebar dots
+              document.querySelectorAll('[data-nav-dot]').forEach((dot) => {
+                const dotTarget = dot.getAttribute('data-nav-dot');
+                if (dotTarget === id) {
+                  dot.classList.add('dot-active');
+                } else {
+                  dot.classList.remove('dot-active');
+                }
+              });
+              // Update nav links (all navs)
+              document.querySelectorAll('[data-nav-link]').forEach((link) => {
+                const linkTarget = link.getAttribute('data-nav-link');
+                if (linkTarget === id) {
+                  link.classList.add('nav-active');
+                } else {
+                  link.classList.remove('nav-active');
+                }
+              });
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+
+      sections.forEach((section) => navObserver.observe(section));
+    </script>
+  </body>
+</html>

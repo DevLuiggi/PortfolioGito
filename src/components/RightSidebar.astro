@@ -1,0 +1,99 @@
+---
+import { personal } from '../data/personal';
+
+const navItems = [
+  { id: 'hero', label: 'Home', icon: 'code' },
+  { id: 'about', label: 'About', icon: 'terminal' },
+  { id: 'skills', label: 'Skills', icon: 'chip' },
+  { id: 'experience', label: 'Experience', icon: 'git' },
+  { id: 'projects', label: 'Projects', icon: 'folder' },
+  { id: 'contact', label: 'Contact', icon: 'mail' },
+];
+---
+
+<nav class="fixed right-6 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col items-center" aria-label="Section navigation">
+  <div class="relative flex flex-col items-center">
+    <div class="nav-line absolute top-6 bottom-6 w-px bg-orange-500/25"></div>
+
+    {navItems.map((item) => (
+      <a
+        href={`#${item.id}`}
+        data-nav-dot={item.id}
+        class="nav-item group relative flex items-center justify-end my-1 z-10"
+        aria-label={`Go to ${item.label}`}
+      >
+        <span class="nav-label absolute right-full mr-3 px-3 py-1.5 bg-dark-100/95 backdrop-blur-sm border border-orange-500/40 rounded-lg text-orange-400 text-xs font-mono whitespace-nowrap opacity-0 translate-x-2 pointer-events-none transition-all duration-300">
+          &gt; {item.label}
+        </span>
+
+        <div class="nav-icon-ring relative w-12 h-12 flex items-center justify-center rounded-full transition-all duration-300">
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="22" fill="none" stroke="rgba(255,107,0,0.15)" stroke-width="1" stroke-dasharray="3 3" class="ring-dash transition-all duration-300" />
+          </svg>
+          <div class="nav-icon-bg absolute inset-1.5 rounded-full bg-dark-200/80 border border-dark-400/40 transition-all duration-300"></div>
+          <div class="nav-icon relative flex items-center justify-center transition-all duration-300 z-10">
+            {item.icon === 'code' && (
+              <svg class="w-4.5 h-4.5 text-orange-400/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m17.25 6.75 4.5 4.5-4.5 4.5m-10.5 0-4.5-4.5 4.5-4.5" />
+              </svg>
+            )}
+            {item.icon === 'terminal' && (
+              <svg class="w-4.5 h-4.5 text-orange-400/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3" />
+              </svg>
+            )}
+            {item.icon === 'chip' && (
+              <svg class="w-4.5 h-4.5 text-orange-400/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5M4.5 15.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Z" />
+              </svg>
+            )}
+            {item.icon === 'git' && (
+              <svg class="w-4.5 h-4.5 text-orange-400/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><line x1="6" y1="9" x2="6" y2="21" />
+              </svg>
+            )}
+            {item.icon === 'folder' && (
+              <svg class="w-4.5 h-4.5 text-orange-400/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+              </svg>
+            )}
+            {item.icon === 'mail' && (
+              <svg class="w-4.5 h-4.5 text-orange-400/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
+            )}
+          </div>
+        </div>
+      </a>
+    ))}
+  </div>
+
+  <div class="w-px h-6 bg-dark-400/50 my-3"></div>
+
+  <a
+    href={personal.resumeUrl.en}
+    data-resume-en={personal.resumeUrl.en}
+    data-resume-es={personal.resumeUrl.es}
+    data-resume-link
+    target="_blank"
+    rel="noopener noreferrer"
+    class="group flex items-center gap-2 px-3 py-2 border border-orange-500/40 rounded-lg text-orange-400 text-xs font-mono hover:bg-orange-500/10 hover:border-orange-500/60 transition-all duration-200"
+    aria-label="Download Resume"
+  >
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+    </svg>
+    <span data-i18n="resume">Resume</span>
+  </a>
+</nav>
+
+<style>
+  .nav-icon svg { transition: color 0.3s; }
+  .nav-item.dot-active .nav-icon svg { color: rgba(255, 107, 0, 1); }
+  .nav-item.dot-active .ring-dash { stroke: rgba(255, 107, 0, 0.6); stroke-dasharray: 4 2; }
+  .nav-item.dot-active .nav-icon-bg { border-color: rgba(255, 107, 0, 0.3); background-color: rgba(255, 107, 0, 0.08); }
+  .nav-item:hover .nav-label { opacity: 1; transform: translateX(0); pointer-events: auto; }
+  .nav-item:not(.dot-active):hover .nav-icon svg { color: rgba(255, 107, 0, 0.85); }
+  .nav-item:not(.dot-active):hover .ring-dash { stroke: rgba(255, 107, 0, 0.4); }
+  .nav-item:not(.dot-active):hover .nav-icon-bg { border-color: rgba(255, 107, 0, 0.2); }
+</style>
