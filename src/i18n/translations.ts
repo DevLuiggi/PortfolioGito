@@ -48,6 +48,7 @@ export const translations: Record<Language, Record<string, any>> = {
       projectsLabel: 'PROJECTS',
       projectsUnit: 'DEP',
       caffeineLabel: 'CAFFEINE',
+      certEnglish: 'English Certification — B2+',
     },
     skills: {
       title: 'Skills.json',
@@ -143,6 +144,7 @@ export const translations: Record<Language, Record<string, any>> = {
       projectsLabel: 'PROYECTOS',
       projectsUnit: 'DESP',
       caffeineLabel: 'CAFEÍNA',
+      certEnglish: 'Certificación de Inglés — B2+',
     },
     skills: {
       title: 'Skills.json',
