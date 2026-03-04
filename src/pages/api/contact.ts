@@ -14,6 +14,7 @@ const emailTexts = {
     subtitle: 'Thanks for reaching out through my portfolio.',
     body: "I've received your message and will get back to you as soon as possible.",
     yourMessage: 'Your message:',
+    phone: 'Phone:',
     meanwhile: 'In the meantime, feel free to check out my work at',
   },
   es: {
@@ -22,6 +23,7 @@ const emailTexts = {
     subtitle: 'Gracias por contactarme a través de mi portafolio.',
     body: 'He recibido tu mensaje y te responderé lo antes posible.',
     yourMessage: 'Tu mensaje:',
+    phone: 'Teléfono:',
     meanwhile: 'Mientras tanto, puedes ver mi trabajo en',
   },
 };
@@ -29,7 +31,7 @@ const emailTexts = {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { name, email, message, lang } = body;
+    const { name, email, message, lang, phone } = body;
     const locale = lang === 'es' ? 'es' : 'en';
 
     // Validation
@@ -57,6 +59,7 @@ export const POST: APIRoute = async ({ request }) => {
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
     const trimmedMessage = message.trim();
+    const trimmedPhone = typeof phone === 'string' && phone.trim().length > 0 ? phone.trim() : null;
 
     // Send notification email to me (always English)
     const { error: notifyError } = await resend.emails.send({
@@ -79,6 +82,10 @@ export const POST: APIRoute = async ({ request }) => {
               <td style="padding: 8px 0; color: #8b8fa3;">Email:</td>
               <td style="padding: 8px 0;"><a href="mailto:${trimmedEmail}" style="color: #3399ff;">${trimmedEmail}</a></td>
             </tr>
+            ${trimmedPhone ? `<tr>
+              <td style="padding: 8px 0; color: #8b8fa3;">Phone:</td>
+              <td style="padding: 8px 0; color: #e6edfa;">${trimmedPhone}</td>
+            </tr>` : ''}
             <tr>
               <td style="padding: 8px 0; color: #8b8fa3;">Lang:</td>
               <td style="padding: 8px 0; color: #e6edfa;">${locale.toUpperCase()}</td>
@@ -122,6 +129,7 @@ export const POST: APIRoute = async ({ request }) => {
             <div style="padding: 16px; background: #1e1e22; border-radius: 8px; border-left: 3px solid #3399ff; margin-bottom: 20px;">
               <p style="color: #8b8fa3; margin: 0 0 6px; font-size: 12px; font-family: monospace;">${t.yourMessage}</p>
               <p style="color: #e6edfa; margin: 0; font-size: 13px; white-space: pre-wrap;">${trimmedMessage}</p>
+              ${trimmedPhone ? `<p style="margin: 8px 0 0; color: #8b8fa3; font-size: 12px; font-family: monospace;">${t.phone} <span style="color: #7ee787;">${trimmedPhone}</span></p>` : ''}
             </div>
             <p style="color: #c0c4d0; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
               ${t.meanwhile}

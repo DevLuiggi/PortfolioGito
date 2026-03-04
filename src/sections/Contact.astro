@@ -86,8 +86,46 @@ import { personal } from '../data/personal';
               </label>
             </div>
 
+            <div class="pl-2 sm:pl-4">
+              <label class="block">
+                <span class="text-syntax-keyword">const</span> <span class="text-syntax-type">phone</span> <span class="text-syntax-operator">=</span>
+                <div class="flex gap-1.5 mt-1">
+                  <div class="relative shrink-0">
+                    <select
+                      name="countryCode"
+                      class="appearance-none bg-dark-200 border border-dark-300 rounded pl-2 pr-6 py-1.5 text-syntax-string focus:border-blue-500/50 focus:outline-none transition-colors text-sm cursor-pointer"
+                      style="min-width: 5.5rem;"
+                    >
+                      <option value="+51">&#127477;&#127466; +51</option>
+                      <option value="+1">&#127482;&#127480; +1</option>
+                      <option value="+52">&#127474;&#127485; +52</option>
+                      <option value="+54">&#127462;&#127479; +54</option>
+                      <option value="+55">&#127463;&#127479; +55</option>
+                      <option value="+56">&#127464;&#127473; +56</option>
+                      <option value="+57">&#127464;&#127476; +57</option>
+                      <option value="+58">&#127483;&#127466; +58</option>
+                      <option value="+591">&#127463;&#127476; +591</option>
+                      <option value="+593">&#127466;&#127464; +593</option>
+                      <option value="+595">&#127477;&#127486; +595</option>
+                      <option value="+598">&#127482;&#127486; +598</option>
+                      <option value="+34">&#127466;&#127480; +34</option>
+                      <option value="+44">&#127468;&#127463; +44</option>
+                    </select>
+                    <span class="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-muted text-xs leading-none">&#9662;</span>
+                  </div>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    class="bg-dark-200 border border-dark-300 rounded px-3 py-1.5 text-syntax-string flex-1 min-w-0 focus:border-blue-500/50 focus:outline-none transition-colors text-sm"
+                    placeholder="Phone number (optional)"
+                    data-i18n="contact.phonePlaceholder"
+                  />
+                </div>
+              </label>
+            </div>
+
             <p class="pl-2 sm:pl-4"><span class="text-syntax-keyword">await</span> api.<span class="text-syntax-function">submit</span>({'{'}</p>
-            <p class="pl-4 sm:pl-6">name, email,</p>
+            <p class="pl-4 sm:pl-6" data-i18n="contact.nameEmail">name, email, phone,</p>
             <div class="pl-4 sm:pl-6">
               <label class="block">
                 <span class="text-syntax-type">message</span><span class="text-syntax-operator">:</span>
@@ -112,7 +150,6 @@ import { personal } from '../data/personal';
               <span data-i18n="contact.runScript">RUN SCRIPT</span>
             </button>
 
-            <div id="form-status" class="hidden text-sm font-mono mt-2 text-center"></div>
           </form>
         </div>
       </div>
@@ -120,17 +157,86 @@ import { personal } from '../data/personal';
   </div>
 </section>
 
+<!-- Toast container -->
+<div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
 <script>
+  import { langStore } from '../i18n/languageStore';
+
+  const toastTexts = {
+    en: {
+      success: '// Message sent successfully!',
+      error: '// Failed to send message. Try again.',
+      networkError: '// Network error. Try again.',
+    },
+    es: {
+      success: '// ¡Mensaje enviado exitosamente!',
+      error: '// Error al enviar mensaje. Intenta de nuevo.',
+      networkError: '// Error de red. Intenta de nuevo.',
+    },
+  };
+
+  function showToast(type: 'success' | 'error', customMessage?: string) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const lang = langStore.current;
+    const t = toastTexts[lang];
+    const message = customMessage || (type === 'success' ? t.success : t.error);
+
+    const isSuccess = type === 'success';
+    const borderColor = isSuccess ? '#22c55e' : '#ef4444';
+    const iconColor = isSuccess ? '#22c55e' : '#ef4444';
+    const timeout = isSuccess ? 4000 : 6000;
+
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto';
+    toast.style.animation = 'toast-in 0.35s ease-out forwards';
+
+    toast.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;background:#1e1e22;border:1px solid #2d2d33;border-left:3px solid ${borderColor};border-radius:10px;padding:14px 18px;min-width:280px;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+          ${isSuccess
+            ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'
+            : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'
+          }
+        </svg>
+        <span style="font-family:var(--font-mono);font-size:13px;color:${isSuccess ? '#7ee787' : '#ff7b72'}; flex:1;">${message}</span>
+        <button aria-label="Close" style="background:none;border:none;color:#8b8fa3;cursor:pointer;padding:2px;line-height:1;font-size:16px;">&#10005;</button>
+      </div>
+    `;
+
+    const closeBtn = toast.querySelector('button')!;
+    let dismissed = false;
+
+    function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
+      toast.style.animation = 'toast-out 0.3s ease-in forwards';
+      toast.addEventListener('animationend', () => toast.remove());
+    }
+
+    closeBtn.addEventListener('click', dismiss);
+
+    container.appendChild(toast);
+
+    setTimeout(dismiss, timeout);
+  }
+
   const form = document.getElementById('contact-form') as HTMLFormElement;
-  const status = document.getElementById('form-status')!;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
+    const countryCode = (data.get('countryCode') as string) ?? '';
+    const phoneNumber = ((data.get('phoneNumber') as string) ?? '').trim();
+    const phone = phoneNumber ? `${countryCode} ${phoneNumber}` : undefined;
+
     const body = {
       name: data.get('name'),
       email: data.get('email'),
       message: data.get('message'),
+      ...(phone ? { phone } : {}),
       lang: document.documentElement.lang || 'en',
     };
 
@@ -141,20 +247,18 @@ import { personal } from '../data/personal';
         body: JSON.stringify(body),
       });
 
-      status.classList.remove('hidden');
       if (res.ok) {
-        status.textContent = '// Message sent successfully!';
-        status.className = 'text-sm font-mono mt-2 text-center text-green-500';
+        showToast('success');
         form.reset();
       } else {
         const err = await res.json();
-        status.textContent = `// Error: ${err.error || 'Failed to send'}`;
-        status.className = 'text-sm font-mono mt-2 text-center text-red-500';
+        const lang = langStore.current;
+        const t = toastTexts[lang];
+        showToast('error', `// Error: ${err.error || t.error}`);
       }
     } catch {
-      status.classList.remove('hidden');
-      status.textContent = '// Network error. Try again.';
-      status.className = 'text-sm font-mono mt-2 text-center text-red-500';
+      const lang = langStore.current;
+      showToast('error', toastTexts[lang].networkError);
     }
   });
 </script>
